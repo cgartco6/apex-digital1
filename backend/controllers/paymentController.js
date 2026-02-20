@@ -1,45 +1,160 @@
-const stripe = require('../services/stripeService');
-const payfast = require('../services/payfastService');
-const crypto = require('../services/cryptoService');
 const { Payment, Project } = require('../models');
+const stripeService = require('../services/stripeService');
+const payfastService = require('../services/payfastService');
+const cryptoService = require('../services/cryptoService');
+const { projectQueue } = require('../queue/bull');
+const logger = require('../utils/logger');
 
 exports.createPaymentIntent = async (req, res) => {
-  const { projectId, method, currency } = req.body;
-  const project = await Project.findByPk(projectId);
-  if (!project) return res.status(404).json({ error: 'Project not found' });
+  try {
+    const { projectId, method, currency = 'ZAR' } = req.body;
 
-  let paymentIntent;
-  if (method === 'stripe') {
-    paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(project.price * 100),
-      currency,
-      metadata: { projectId }
+    const project = await Project.findOne({
+      where: {
+        id: projectId,
+        userId: req.user.id
+      }
     });
-  } else if (method === 'payfast') {
-    // Generate PayFast form
-    paymentIntent = { url: payfast.generatePaymentUrl(project) };
-  } else if (method === 'crypto') {
-    paymentIntent = await crypto.createInvoice(project.price, currency);
-  }
 
-  res.json({ paymentIntent, clientSecret: paymentIntent?.client_secret });
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    let paymentIntent;
+    let response;
+
+    switch (method) {
+      case 'stripe':
+        paymentIntent = await stripeService.createPaymentIntent(
+          project.price,
+          currency,
+          { projectId, userId: req.user.id }
+        );
+        response = {
+          clientSecret: paymentIntent.client_secret,
+          paymentIntentId: paymentIntent.id
+        };
+        break;
+
+      case 'payfast':
+        paymentIntent = payfastService.generatePaymentForm(project);
+        response = { form: paymentIntent };
+        break;
+
+      case 'crypto':
+        paymentIntent = await cryptoService.createInvoice(
+          project.price,
+          currency,
+          { projectId, userId: req.user.id }
+        );
+        response = { invoice: paymentIntent };
+        break;
+
+      default:
+        return res.status(400).json({ error: 'Invalid payment method' });
+    }
+
+    // Create payment record
+    await Payment.create({
+      userId: req.user.id,
+      projectId: project.id,
+      amount: project.price,
+      currency,
+      method,
+      status: 'pending',
+      gatewayTransactionId: paymentIntent.id,
+      metadata: response
+    });
+
+    res.json(response);
+  } catch (error) {
+    logger.error('Create payment intent error:', error);
+    res.status(500).json({ error: 'Failed to create payment intent' });
+  }
 };
 
-exports.handleWebhook = async (req, res) => {
-  // Verify Stripe signature
-  const event = req.body;
-  if (event.type === 'payment_intent.succeeded') {
-    const paymentIntent = event.data.object;
-    await Payment.create({
-      projectId: paymentIntent.metadata.projectId,
-      amount: paymentIntent.amount / 100,
-      currency: paymentIntent.currency,
-      method: 'stripe',
-      status: 'completed',
-      gatewayTransactionId: paymentIntent.id
+exports.confirmPayment = async (req, res) => {
+  try {
+    const { paymentIntentId, method } = req.body;
+
+    const payment = await Payment.findOne({
+      where: { gatewayTransactionId: paymentIntentId }
     });
-    // Trigger next step in workflow
-    require('../queue/bull').add('processProject', { projectId: paymentIntent.metadata.projectId });
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    let confirmed;
+    switch (method) {
+      case 'stripe':
+        confirmed = await stripeService.confirmPayment(paymentIntentId);
+        break;
+      case 'payfast':
+        // PayFast sends ITN separately
+        confirmed = true;
+        break;
+      case 'crypto':
+        confirmed = await cryptoService.verifyPayment(paymentIntentId);
+        break;
+    }
+
+    if (confirmed) {
+      await payment.update({ status: 'completed', paidAt: new Date() });
+      
+      // Update project status and trigger workflow
+      await Project.update(
+        { paymentStatus: 'paid', status: 'ai_processing' },
+        { where: { id: payment.projectId } }
+      );
+
+      // Add to queue for AI processing
+      await projectQueue.add('processProject', {
+        projectId: payment.projectId
+      });
+
+      res.json({ message: 'Payment confirmed successfully' });
+    } else {
+      res.status(400).json({ error: 'Payment confirmation failed' });
+    }
+  } catch (error) {
+    logger.error('Confirm payment error:', error);
+    res.status(500).json({ error: 'Failed to confirm payment' });
   }
-  res.json({ received: true });
+};
+
+exports.getPaymentHistory = async (req, res) => {
+  try {
+    const payments = await Payment.findAll({
+      where: { userId: req.user.id },
+      include: [{ model: Project, attributes: ['type', 'package'] }],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json(payments);
+  } catch (error) {
+    logger.error('Get payment history error:', error);
+    res.status(500).json({ error: 'Failed to get payment history' });
+  }
+};
+
+exports.getPayment = async (req, res) => {
+  try {
+    const payment = await Payment.findOne({
+      where: {
+        id: req.params.id,
+        userId: req.user.id
+      },
+      include: [Project]
+    });
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    res.json(payment);
+  } catch (error) {
+    logger.error('Get payment error:', error);
+    res.status(500).json({ error: 'Failed to get payment' });
+  }
 };
