@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: apex-postgres
+    environment:
+      POSTGRES_USER: apex
+      POSTGRES_PASSWORD: secret_password
+      POSTGRES_DB: apexdigital
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - apex-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U apex"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: apex-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - apex-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: apex-backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - apex-network
+    command: npm run dev
+
+  frontend:
+    build: ./frontend
+    container_name: apex-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - apex-network
+
+  ai-microservice:
+    build: ./ai-microservice
+    container_name: apex-ai
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./ai-microservice:/app
+    networks:
+      - apex-network
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+
+networks:
+  apex-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
