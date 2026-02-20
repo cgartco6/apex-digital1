@@ -1,10 +1,42 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('Payment', {
-    email: { type: DataTypes.STRING, unique: true, allowNull: false },
-    passwordHash: { type: DataTypes.STRING, allowNull: false },
-    fullName: DataTypes.STRING,
-    role: { type: DataTypes.STRING, defaultValue: 'client' },
-    bankDetails: DataTypes.JSONB, // { fnbAccount, africanBankAccount }
+  const Payment = sequelize.define('Payment', {
+    amount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false
+    },
+    currency: {
+      type: DataTypes.STRING(3),
+      defaultValue: 'ZAR'
+    },
+    method: {
+      type: DataTypes.ENUM('stripe', 'payfast', 'crypto', 'eft', 'card'),
+      allowNull: false
+    },
+    status: {
+      type: DataTypes.ENUM('pending', 'completed', 'failed', 'refunded'),
+      defaultValue: 'pending'
+    },
+    gatewayTransactionId: {
+      type: DataTypes.STRING
+    },
+    gatewayResponse: {
+      type: DataTypes.JSONB
+    },
+    metadata: {
+      type: DataTypes.JSONB,
+      defaultValue: {}
+    },
+    paidAt: {
+      type: DataTypes.DATE
+    }
+  }, {
+    timestamps: true
   });
-  return payment;
+
+  Payment.associate = function(models) {
+    Payment.belongsTo(models.User, { foreignKey: 'userId' });
+    Payment.belongsTo(models.Project, { foreignKey: 'projectId' });
+  };
+
+  return Payment;
 };
