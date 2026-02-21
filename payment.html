@@ -1,0 +1,45 @@
+<main>
+    <h1>Payment Method</h1>
+    <div class="payment-tabs">
+        <button class="tab-btn active" onclick="showTab('zar')">ZAR</button>
+        <button class="tab-btn" onclick="showTab('global')">Global</button>
+        <button class="tab-btn" onclick="showTab('crypto')">Crypto</button>
+    </div>
+    <div id="zar" class="tab-content active">
+        <h3>South African Payments</h3>
+        <ul>
+            <li><input type="radio" name="zar"> Direct EFT (FNB)</li>
+            <li><input type="radio" name="zar"> PayFast</li>
+            <li><input type="radio" name="zar"> payshap</li>
+            <li><input type="radio" name="zar"> Credit/Debit Card</li>
+        </ul>
+    </div>
+    <div id="global" class="tab-content">
+        <h3>Global Payments</h3>
+        <ul>
+            <li><input type="radio" name="global"> Stripe</li>
+            <li><input type="radio" name="global"> PayPal</li>
+        </ul>
+    </div>
+    <div id="crypto" class="tab-content">
+        <h3>Cryptocurrency</h3>
+        <ul>
+            <li><input type="radio" name="crypto"> Bitcoin (BTC) – Valr/Trust/Binance</li>
+            <li><input type="radio" name="crypto"> Ethereum (ETH)</li>
+            <li><input type="radio" name="crypto"> Tether (USDT)</li>
+        </ul>
+        <p>Send to wallet: <code>0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B</code> (example)</p>
+    </div>
+    <button class="btn btn-primary" onclick="simulatePayment()">Pay Now</button>
+</main>
+<script>
+    function showTab(tab) { ... }
+    function simulatePayment() {
+        alert('Payment successful! Your project is now being processed by our AI agents.');
+        // create project record, redirect to dashboard
+        window.location.href = 'dashboard.html';
+    }
+</script>
+<footer>
+    <p>&copy; 2025 Apex Digital. All rights reserved. <a href="compliance.html">Compliance</a> | <a href="terms.html">Terms</a> | <a href="privacy.html">Privacy</a></p>
+</footer>
