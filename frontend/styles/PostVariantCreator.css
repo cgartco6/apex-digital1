@@ -1,0 +1,62 @@
+.container {
+  margin: 1rem 0;
+}
+
+.variant {
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.variant h4 {
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+.variant textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  min-height: 80px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.variant input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.variant button {
+  background: #EF4444;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.variant button:hover {
+  background: #DC2626;
+}
+
+.container > button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.container > button:hover {
+  background: var(--secondary);
+  }
