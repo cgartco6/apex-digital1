@@ -4,6 +4,19 @@ const payfastService = require('../services/payfastService');
 const cryptoService = require('../services/cryptoService');
 const { projectQueue } = require('../queue/bull');
 const logger = require('../utils/logger');
+const paypalService = require('../services/paypalService');
+const eftService = require('../services/eftService');
+
+// Inside createPaymentIntent switch
+case 'paypal':
+  paymentIntent = await paypalService.createOrder(project.price, currency, { projectId, userId: req.user.id });
+  response = { orderId: paymentIntent.id, approvalUrl: paymentIntent.links.find(l => l.rel === 'approve').href };
+  break;
+
+case 'eft':
+  const reference = eftService.generateReference(projectId, req.user.id);
+  response = { bankDetails: eftService.getBankDetails(reference), reference };
+  break;
 
 exports.createPaymentIntent = async (req, res) => {
   try {
