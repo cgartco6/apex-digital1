@@ -1,18 +1,25 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
+import { useAuth } from '../../context/AuthContext';
+import axios from '../../lib/api';
 import OwnerStats from '../../components/OwnerStats';
 import AITargetEngine from '../../components/AITargetEngine';
 import AcquisitionChart from '../../components/charts/AcquisitionChart';
-import axios from '../../lib/api';
 import styles from '../../styles/Admin.module.css';
 
 export default function AdminDashboard() {
+  const { user, loading } = useAuth();
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!loading && (!user || user.role !== 'admin')) {
+      window.location.href = '/';
+    }
+    if (user?.role === 'admin') {
+      fetchData();
+    }
+  }, [user, loading]);
 
   const fetchData = async () => {
     try {
@@ -21,20 +28,31 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  if (loading) return <Layout><p>Loading...</p></Layout>;
+  if (loading || isLoading) return <Layout>Loading...</Layout>;
 
   return (
     <Layout>
-      <h1>Owner Dashboard</h1>
+      <h1>Admin Dashboard</h1>
       <div className={styles.grid}>
         <OwnerStats current={data.current} />
         <AITargetEngine target={data.target} />
-        <AcquisitionChart historical={data.historical} />
+        <div className={styles.chartContainer}>
+          <h2>Acquisition Trends (30 Days)</h2>
+          <AcquisitionChart historical={data.historical} />
+        </div>
+        <div className={styles.recentSignups}>
+          <h2>Recent Signups</h2>
+          <ul>
+            {data.recentSignups.map(user => (
+              <li key={user.id}>{user.fullName} - {user.email} ({new Date(user.createdAt).toLocaleDateString()})</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </Layout>
   );
-                    }
+    }
