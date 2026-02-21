@@ -1,0 +1,55 @@
+// Floating chatbot widget
+(function() {
+    const chatHTML = `
+        <div id="robyn-chatbot" class="chatbot">
+            <div class="chat-header" onclick="toggleChat()">
+                <span>Robyn 🤖</span>
+                <span id="chat-toggle">▼</span>
+            </div>
+            <div id="chat-body" class="chat-body" style="display:none;">
+                <div id="chat-messages"></div>
+                <input type="text" id="chat-input" placeholder="Ask me anything...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', chatHTML);
+
+    window.toggleChat = function() {
+        const body = document.getElementById('chat-body');
+        const toggle = document.getElementById('chat-toggle');
+        if (body.style.display === 'none') {
+            body.style.display = 'flex';
+            toggle.textContent = '▲';
+        } else {
+            body.style.display = 'none';
+            toggle.textContent = '▼';
+        }
+    };
+
+    window.sendMessage = function() {
+        const input = document.getElementById('chat-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+        addMessage('You', msg);
+        input.value = '';
+
+        // Simulate AI response
+        setTimeout(() => {
+            let reply = "I'm Robyn, your AI assistant. I can help with projects, payments, or anything about Apex Digital!";
+            if (msg.toLowerCase().includes('payment')) reply = "We accept ZAR (EFT, PayFast, payshap, card) and global (Stripe, PayPal, crypto).";
+            else if (msg.toLowerCase().includes('design')) reply = "Choose from 6 styles: Classic, Cartoon, Traditional, Modern, Futuristic, Out‑of‑the‑box.";
+            else if (msg.toLowerCase().includes('payout')) reply = "Weekly payouts split: 35% FNB, 15% African Bank, 20% AI FNB, 20% Reserve FNB, 10% retained.";
+            addMessage('Robyn', reply);
+        }, 500);
+    };
+
+    function addMessage(sender, text) {
+        const msgs = document.getElementById('chat-messages');
+        msgs.innerHTML += `<div><strong>${sender}:</strong> ${text}</div>`;
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+})();
+<footer>
+    <p>&copy; 2025 Apex Digital. All rights reserved. <a href="compliance.html">Compliance</a> | <a href="terms.html">Terms</a> | <a href="privacy.html">Privacy</a></p>
+</footer>
