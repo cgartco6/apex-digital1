@@ -12,7 +12,19 @@ class EmailService {
       }
     });
   }
+async sendPostPublished(post, user) {
+  const mailOptions = {
+    from: process.env.FROM_EMAIL,
+    to: user.email,
+    subject: 'Your post has been published',
+    html: `<p>Your post on ${post.platforms.join(', ')} has been published.</p>`
+  };
+  return this.transporter.sendMail(mailOptions);
+}
 
+async sendABTestCompleted(test, winner) {
+  // ...
+  }
   async sendWelcomeEmail(user) {
     const mailOptions = {
       from: process.env.FROM_EMAIL,
