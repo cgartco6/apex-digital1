@@ -1,0 +1,50 @@
+<main>
+    <h1>Choose Your Package</h1>
+    <div class="pricing-cards">
+        <div class="pricing-card">
+            <h3>Basic</h3>
+            <p class="price">R 2,999 <span>/project</span></p>
+            <ul>...</ul>
+            <button class="btn btn-primary" onclick="startProject('basic')">Start</button>
+        </div>
+        <div class="pricing-card">
+            <h3>Pro</h3>
+            <p class="price">R 6,999 <span>/project</span></p>
+            <ul>...</ul>
+            <button class="btn btn-primary" onclick="startProject('pro')">Start</button>
+        </div>
+        <div class="pricing-card">
+            <h3>Enterprise</h3>
+            <p class="price">R 12,999 <span>/project</span></p>
+            <ul>...</ul>
+            <button class="btn btn-primary" onclick="startProject('enterprise')">Start</button>
+        </div>
+    </div>
+
+    <div id="project-wizard" style="display:none;">
+        <h2>Customize Your Project</h2>
+        <form id="project-form">
+            <label>Design Style:</label>
+            <select id="design-style">
+                <option>Classic</option><option>Cartoon</option><option>Traditional</option>
+                <option>Modern</option><option>Futuristic</option><option>Out‑of‑the‑box</option>
+            </select>
+            <label>Project Requirements:</label>
+            <textarea id="requirements" placeholder="Describe your vision..."></textarea>
+            <button type="button" class="btn btn-primary" onclick="submitProject()">Submit & Pay</button>
+        </form>
+    </div>
+</main>
+<script>
+    function startProject(plan) {
+        document.getElementById('project-wizard').style.display = 'block';
+        // store plan in session
+    }
+    function submitProject() {
+        // save to localStorage, redirect to payment
+        window.location.href = 'payment.html';
+    }
+  </script>
+ <footer>
+    <p>&copy; 2025 Apex Digital. All rights reserved. <a href="compliance.html">Compliance</a> | <a href="terms.html">Terms</a> | <a href="privacy.html">Privacy</a></p>
+ </footer> 
