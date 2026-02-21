@@ -10,3 +10,16 @@
   "register": "Registreer",
   "logout": "Teken uit"
 }
+{
+  "connect_account": "Connect Account",
+  "disconnect": "Disconnect",
+  "social_accounts": "Social Accounts",
+  "ab_tests": "A/B Tests",
+  "new_test": "New Test",
+  "variant": "Variant",
+  "schedule_post": "Schedule Post",
+  "post_now": "Post Now",
+  "audience_size": "Audience Size",
+  "start_test": "Start Test",
+  "view_results": "View Results"
+}
