@@ -1,40 +1,37 @@
-const { FacebookAdsApi } = require('facebook-ads-api');
+const axios = require('axios');
 
 class FacebookAdsService {
   constructor() {
-    this.client = new FacebookAdsApi({
-      client_id: process.env.FACEBOOK_ADS_CLIENT_ID,
-      client_secret: process.env.FACEBOOK_ADS_CLIENT_SECRET,
-      developer_token: process.env.FACEBOOK_ADS_DEVELOPER_TOKEN
-    });
+    this.baseURL = 'https://graph.facebook.com/v18.0';
+    this.accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
+    this.adAccountId = process.env.FACEBOOK_AD_ACCOUNT_ID;
   }
 
-  async getCampaignMetrics(customerId, campaignId, startDate, endDate) {
-    const customer = this.client.Customer({
-      customer_id: customerId,
-      refresh_token: process.env.FACEBOOK_ADS_REFRESH_TOKEN
-    });
-
-    const query = `
-      SELECT campaign.id, campaign.name, metrics.impressions, metrics.clicks, metrics.conversions,
-             metrics.cost_micros, metrics.conversions_value
-      FROM campaign
-      WHERE campaign.id = ${campaignId}
-        AND segments.date BETWEEN '${startDate}' AND '${endDate}'
-    `;
-
-    const rows = await customer.query(query);
-    return rows.map(row => ({
-      impressions: row.metrics.impressions,
-      clicks: row.metrics.clicks,
-      conversions: row.metrics.conversions,
-      spend: row.metrics.cost_micros / 1_000_000,
-      revenue: row.metrics.conversions_value / 1_000_000
-    }));
+  async getCampaignMetrics(campaignId, datePreset = 'last_30d') {
+    try {
+      const response = await axios.get(`${this.baseURL}/${campaignId}/insights`, {
+        params: {
+          access_token: this.accessToken,
+          fields: 'impressions,clicks,conversions,spend,reach',
+          date_preset: datePreset
+        }
+      });
+      return response.data.data[0] || {};
+    } catch (error) {
+      throw new Error(`Facebook API error: ${error.message}`);
+    }
   }
 
-  async createCampaign(customerId, campaignData) {
-    // Implementation for creating campaigns via API
+  async createCampaign(name, objective, budget, targeting) {
+    // Implementation for creating campaign via Facebook API
+    const response = await axios.post(`${this.baseURL}/act_${this.adAccountId}/campaigns`, {
+      name,
+      objective,
+      status: 'PAUSED',
+      special_ad_categories: [],
+      access_token: this.accessToken
+    });
+    return response.data;
   }
 }
 
