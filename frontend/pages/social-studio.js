@@ -3,6 +3,20 @@ import Layout from '../components/Layout';
 import axios from '../lib/api';
 import toast from 'react-hot-toast';
 import styles from '../styles/SocialStudio.module.css';
+import { useState } from 'react';
+import DateTimePicker from 'react-datetime-picker'; // install
+import 'react-datetime-picker/dist/DateTimePicker.css';
+
+// In component
+const [scheduleTime, setScheduleTime] = useState(null);
+
+// In the post section
+<input type="checkbox" checked={scheduleTime !== null} onChange={e => setScheduleTime(e.target.checked ? new Date() : null)} />
+{scheduleTime && <DateTimePicker onChange={setScheduleTime} value={scheduleTime} />}
+
+// When posting
+const postData = { platform, content: generatedContent, imageUrl, videoUrl, scheduleTime };
+await axios.post('/social/post', postData);
 
 export default function SocialStudio() {
   const [topic, setTopic] = useState('');
