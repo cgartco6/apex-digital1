@@ -3,6 +3,27 @@ const { Payment, Project } = require('../models');
 const { projectQueue } = require('../queue/bull');
 const logger = require('../utils/logger');
 const crypto = require('crypto');
+const paypal = require('@paypal/checkout-server-sdk');
+
+// Set up client
+const client = new paypal.core.PayPalHttpClient(environment);
+
+// In webhook handler
+const webhookEvent = req.body;
+const headers = req.headers;
+const verified = await client.execute(new paypal.webhooks.VerifyWebhookSignatureRequest({
+  auth_algo: headers['paypal-auth-algo'],
+  cert_url: headers['paypal-cert-url'],
+  transmission_id: headers['paypal-transmission-id'],
+  transmission_sig: headers['paypal-transmission-sig'],
+  transmission_time: headers['paypal-transmission-time'],
+  webhook_id: process.env.PAYPAL_WEBHOOK_ID,
+  webhook_event: webhookEvent
+}));
+
+if (verified.result.verification_status !== 'SUCCESS') {
+  return res.status(400).send('Invalid signature');
+}
 
 exports.payfastWebhook = (req, res) => {
   const { body } = req;
