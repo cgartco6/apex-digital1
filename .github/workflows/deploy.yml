@@ -1,0 +1,27 @@
+name: Deploy
+on:
+  push:
+    branches: [ main ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with: { node-version: 18 }
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker build -t your-registry/backend:latest ./backend
+      - run: docker push your-registry/backend:latest
+      # Deploy to Kubernetes
+      - uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: set image deployment/backend backend=your-registry/backend:latest
