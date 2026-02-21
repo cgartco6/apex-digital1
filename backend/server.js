@@ -5,6 +5,13 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { sequelize } = require('./models');
 const logger = require('./utils/logger');
+const http = require('http');
+const { initSocket } = require('./socket');
+
+const server = http.createServer(app);
+initSocket(server);
+
+server.listen(PORT, () => { ... });
 
 // Import routes
 const authRoutes = require('./routes/auth');
