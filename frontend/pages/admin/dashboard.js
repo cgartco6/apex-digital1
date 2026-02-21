@@ -56,3 +56,8 @@ export default function AdminDashboard() {
     </Layout>
   );
     }
+<section>
+  <h2>Platform-Wide Social Performance</h2>
+  <div>Total Posts: {data.totalPosts}</div>
+  <div>Total Impressions: {data.totalImpressions}</div>
+</section>
