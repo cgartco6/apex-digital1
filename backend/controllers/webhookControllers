@@ -2,6 +2,23 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { Payment, Project } = require('../models');
 const { projectQueue } = require('../queue/bull');
 const logger = require('../utils/logger');
+const crypto = require('crypto');
+
+exports.payfastWebhook = (req, res) => {
+  const { body } = req;
+  const signature = body.signature;
+  delete body.signature;
+
+  const queryString = Object.keys(body).sort().map(key => `${key}=${encodeURIComponent(body[key]).replace(/%20/g, '+')}`).join('&');
+  const calculated = crypto.createHash('md5').update(queryString + '&passphrase=' + process.env.PAYFAST_PASSPHRASE).digest('hex');
+
+  if (calculated !== signature) {
+    return res.status(400).send('Invalid signature');
+  }
+
+  // Process webhook...
+  res.send('OK');
+};
 
 exports.stripeWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
