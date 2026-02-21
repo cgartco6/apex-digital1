@@ -1,0 +1,67 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.lastUpdated {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.content {
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
+.content h1 {
+  font-size: 1.8rem;
+  margin: 2rem 0 1rem;
+}
+
+.content h2 {
+  font-size: 1.4rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.content h3 {
+  font-size: 1.2rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.content p {
+  margin-bottom: 1rem;
+}
+
+.content ul, .content ol {
+  margin: 0.5rem 0 1rem 2rem;
+}
+
+.content li {
+  margin-bottom: 0.25rem;
+}
+
+.content a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #EF4444;
+  }
