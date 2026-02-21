@@ -1,0 +1,97 @@
+/* Chatbot */
+.chatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    font-family: 'Open Sans', sans-serif;
+}
+.chat-header {
+    background: var(--primary);
+    color: white;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+}
+.chat-body {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+}
+#chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    border-bottom: 1px solid var(--border);
+}
+#chat-input {
+    border: none;
+    padding: 10px;
+    border-top: 1px solid var(--border);
+}
+.chat-body button {
+    background: var(--secondary);
+    color: white;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+}
+
+/* Dashboard */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.metric {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--primary);
+}
+.payouts table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.payouts th, .payouts td {
+    border: 1px solid var(--border);
+    padding: 8px;
+    text-align: left;
+}
+
+/* Payment Tabs */
+.payment-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.tab-btn {
+    padding: 10px 20px;
+    background: var(--border);
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+<footer>
+    <p>&copy; 2025 Apex Digital. All rights reserved. <a href="compliance.html">Compliance</a> | <a href="terms.html">Terms</a> | <a href="privacy.html">Privacy</a></p>
+</footer>
